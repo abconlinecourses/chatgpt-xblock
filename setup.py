@@ -23,15 +23,16 @@ def package_data(pkg, roots):
 
 
 setup(
-    name='chatgptxblock-xblock',
+    name='chatgpt-xblock',
     version='0.1',
-    description='chatgptxblock XBlock',   # TODO: write a better description.
+    description='chatgpt XBlock',   # TODO: write a better description.
     license='UNKNOWN',          # TODO: choose a license: 'AGPL v3' and 'Apache 2.0' are popular.
     packages=[
         'chatgptxblock',
     ],
     install_requires=[
         'XBlock',
+        'openai'
     ],
     entry_points={
         'xblock.v1': [
