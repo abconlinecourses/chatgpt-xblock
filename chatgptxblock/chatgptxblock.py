@@ -5,10 +5,18 @@ import openai
 from xblock.core import XBlock
 from xblock.fields import Integer, String, Scope
 from xblock.fragment import Fragment
+from xblockutils.studio_editable import StudioEditableXBlockMixin
 
 
-class ChatgptXBlock(XBlock):
+class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
     # Define the fields of the XBlock
+    display_name = String(
+        display_name="Display Name",
+        help="Display name for this module",
+        default="ChatGPT Assistant",
+        scope=Scope.settings,
+    )
+
     question = String(
         default='',
         scope=Scope.user_state,
@@ -21,20 +29,32 @@ class ChatgptXBlock(XBlock):
     )
 
     api_key = String(
-        default="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",
+        default="sk-vyJzdurDebHNfWknuNR7T3BlbkFJXWWRjsdfsdfdrwfsdf",
         scope=Scope.settings,
-        help="Your OpenAI API key",
+        help="Your OpenAI API key, which can be found at <a href='https://platform.openai.com/account/api-keys' target='_blank'>https://platform.openai.com/account/api-keys</a>",
     )
     context_text = String(
         default="Learning is ",
         scope=Scope.settings,
         help="Your context here",
     )
+    model_name = String(display_name="Model name", values=('text-davinci-003', 'text-davinci-002', 'text-curie-001', 'text-babbage-001', 'text-ada-001'),
+        default="text-davinci-003", scope=Scope.settings,
+        help="Select a ChatGPT model.")
 
-    # TO-DO: Add any additional fields you need here.
+    description = String(
+        default='Description here',
+        scope=Scope.settings,
+        help='Description'
+    )
+
+    # TO-DO: Add any additional fields.
 
     editable_fields = [
+        'display_name',
+        'model_name',
         'api_key',
+        'description',
         'context_text',
     ]
 
@@ -69,7 +89,7 @@ class ChatgptXBlock(XBlock):
         prompt = f"{self.context_text}\n\nQuestion: {question}\nAnswer:"
 
         # Send the user's question to the text-davinci-002 model using the OpenAI API
-        model = "curie"
+        model = "text-davinci-003"
         openai.api_key = self.api_key
         response = openai.Completion.create(
             engine=model,

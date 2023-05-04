@@ -19,7 +19,7 @@
 
   .chatgpt__question button {
     padding: 10px;
-    background-color: #4CAF50;
+    background: #4CAF50;
     color: white;
     border: none;
     border-radius: 4px;
@@ -29,7 +29,7 @@
   }
 
   .chatgpt__question button:hover {
-    background-color: #3e8e41;
+    background: #3e8e41;
   }
 
   .chatgpt__answer h3 {
