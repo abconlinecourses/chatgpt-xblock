@@ -12,7 +12,7 @@ The ChatGPT XBlock is a plugin for Open edX that allows you to integrate ChatGPT
 
 Install the XBlock in your Open edX environment using pip:
 ```
-pip install https://github.com/isankadn/chatgpt-xblock.git
+pip install https://github.com/abconlinecourses/chatgpt-xblock.git
 ```
 Add 'chatgptxblock' to the INSTALLED_APPS list in your Open edX environment settings.
 
