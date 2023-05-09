@@ -48,7 +48,7 @@ The ChatGPT XBlock is built on Open edX's XBlock framework and is compatible wit
 
 This project is licensed under the terms of the AGPLv3 license. Please see the LICENSE file for more details.
 
-# About the Developer (https://www.abconlinecourses.com/)
+# About the Developer
 
 Our company ABC Online Courses is an official Open edX® Partner. Our latest development, the ChatGPT XBlock for the Open edX® platform, is designed to solve the problem inherent with massive open online courses where there are not enough teaching assistants available for the large student body taking the course. The ChatGPT XBlock acts like an assistant where learners and instructors alike can ask questions and receive a response in real time from the popular AI model developed by OpenAI.
 
