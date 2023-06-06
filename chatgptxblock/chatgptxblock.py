@@ -2,7 +2,7 @@ import os
 import pkg_resources
 import openai
 from xblock.core import XBlock
-from xblock.fields import Scope, String, List
+from xblock.fields import Float, Scope, String, List, Integer
 from xblock.fragment import Fragment
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 
@@ -41,6 +41,39 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
         scope=Scope.settings,
         help='Description'
     )
+
+    max_tokens = Integer(
+        display_name="Max tokens",
+        default=150,
+        scope=Scope.settings,
+        help="The maximum number of tokens to generate.",
+    )
+
+    start_text = String(
+        display_name="Start Text",
+        default="",
+        scope=Scope.settings,
+        help="Text to append after the user's input."
+    )
+
+    temperature = Float(
+        default=0.5,
+        scope=Scope.settings,
+        help="Controls Randomness."
+    )
+
+    # TO-DO: Add any additional fields.
+
+    editable_fields = [
+        'display_name',
+        'model_name',
+        'api_key',
+        'description',
+        'context_text',
+        'max_tokens',
+        'start_text',
+        'temperature',
+    ]
     context_text = String(
         default="You are a helpful teaching assistant. Provide concise, factual answers.",
         scope=Scope.settings,
