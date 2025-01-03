@@ -1,3 +1,4 @@
+// chatgptxblock.js
 /* Javascript for ChatgptXBlock. */
 function ChatgptXBlock(runtime, element) {
 // Get the input field and submit button

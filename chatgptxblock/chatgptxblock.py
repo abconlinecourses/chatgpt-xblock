@@ -1,20 +1,18 @@
 import os
 import pkg_resources
+import openai
 from xblock.core import XBlock
 from xblock.fields import String, Scope
 from xblock.fragment import Fragment
 from xblockutils.studio_editable import StudioEditableXBlockMixin
-from openai import OpenAI
 
 class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
-    # Define the fields of the XBlock
     display_name = String(
         display_name="Display Name",
         help="Display name for this module",
         default="ChatGPT Assistant",
         scope=Scope.settings,
     )
-
     question = String(
         default='',
         scope=Scope.user_state,
@@ -31,11 +29,22 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
         scope=Scope.settings,
         help="Your OpenAI API key",
     )
+
+    # Provide the dropdown choices via the "values" parameter:
     model_name = String(
         display_name="Model name",
         default="gpt-3.5-turbo-0613",
         scope=Scope.settings,
-        help="Select a ChatGPT model."
+        help="Select which ChatGPT model to use.",
+        values=[
+            {"display_name": "GPT-3.5 Turbo 0613", "value": "gpt-3.5-turbo-0613"},
+            {"display_name": "GPT-3.5 Turbo",      "value": "gpt-3.5-turbo"},
+            {"display_name": "GPT-3.5 Turbo 16k",  "value": "gpt-3.5-turbo-16k"},
+            {"display_name": "GPT-4",              "value": "gpt-4"},
+            {"display_name": "GPT-4o",              "value": "gpt-4o"},
+            {"display_name": "o1",                  "value": "o1"},
+            {"display_name": "o1-mini",             "value": "o1-mini"},
+        ],
     )
 
     context_text = String(
@@ -50,6 +59,7 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
         help='Description'
     )
 
+    # Make sure model_name is included in your editable fields list
     editable_fields = ['display_name', 'model_name', 'api_key', 'description', 'context_text']
 
     def resource_string(self, path):
@@ -72,13 +82,15 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
         question = data['question']
         self.question = question
 
-        client = OpenAI(api_key=self.api_key)
+        # Set the API key for openai
+        openai.api_key = self.api_key
 
-        response = client.chat.completions.create(
+        # Call the Chat Completion endpoint
+        response = openai.ChatCompletion.create(
             model=self.model_name,
             messages=[
                 {"role": "system", "content": self.context_text},
-                {"role": "user", "content": question}
+                {"role": "user",   "content": question}
             ]
         )
 
@@ -93,7 +105,6 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
             answer = "No response received from the model."
 
         self.answer = answer
-
         return {'answer': answer}
 
     @staticmethod
