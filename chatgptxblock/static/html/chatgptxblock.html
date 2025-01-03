@@ -1,13 +1,23 @@
 <div class="chatgpt">
-    <div class="chatgpt__question">
-      <h3 class="chatgpt__description">{self.description}</h3>
-      <br>
-      <input type="text" id="question-input" placeholder="Type your question here...">
-      <button id="submit-btn">Submit</button>
-    </div>
-    <div class="chatgpt__answer">
+  <!-- (1) Disclaimer inserted from Python code -->
+  {disclaimer}
+
+  <div class="chatgpt__question">
+    <h3 class="chatgpt__description">{self.description}</h3>
     <br>
-      <h3>Answer:</h3>
-      <p id="answer-text"></p>
-    </div>
+    <input type="text" id="question-input" placeholder="Type your question here...">
+    <button id="submit-btn">Submit</button>
+    <div style="clear: both;"></div>
   </div>
+
+  <div class="chatgpt__answer">
+    <br>
+    <h3>Answer:</h3>
+    <p id="answer-text"></p>
+    <!-- Basic error or status message area -->
+    <p id="error-message" style="color: red;"></p>
+  </div>
+
+  <!-- (6) Reflection area inserted from Python code -->
+  {reflection}
+</div>

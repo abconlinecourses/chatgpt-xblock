@@ -1,42 +1,82 @@
 .chatgpt {
-    margin-top: 20px;
-    margin-bottom: 20px;
-  }
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
 
-  .chatgpt__question {
-    margin-bottom: 20px;
-  }
+.chatgpt__disclaimer {
+  background-color: #fff3cd;
+  padding: 10px;
+  border: 1px solid #ffeeba;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
 
-  .chatgpt__question h3 {
-    margin-bottom: 10px;
-  }
+.chatgpt__question {
+  margin-bottom: 20px;
+}
 
-  .chatgpt__question input {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-  }
+.chatgpt__question h3 {
+  margin-bottom: 10px;
+}
 
-  .chatgpt__question button {
-    padding: 10px;
-    background: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 10px;
-    float: right;
-  }
+.chatgpt__question input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+}
 
-  .chatgpt__question button:hover {
-    background: #3e8e41;
-  }
+.chatgpt__question button {
+  padding: 10px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+  float: right;
+}
 
-  .chatgpt__answer h3 {
-    margin-bottom: 10px;
-  }
+.chatgpt__question button:hover {
+  background: #3e8e41;
+}
 
-  .chatgpt__answer p {
-    font-size: 16px;
-    line-height: 1.5;
-  }
+.chatgpt__answer h3 {
+  margin-bottom: 10px;
+}
+
+.chatgpt__answer p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.chatgpt__reflection {
+  margin-top: 20px;
+  padding: 10px;
+  border-top: 1px solid #ccc;
+}
+
+.chatgpt__reflection label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.chatgpt__reflection textarea {
+  width: 100%;
+  font-size: 14px;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+.chatgpt__reflection button {
+  padding: 8px 16px;
+  background: #008CBA;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.chatgpt__reflection button:hover {
+  background: #007B9E;
+}
