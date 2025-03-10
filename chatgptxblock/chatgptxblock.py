@@ -1,6 +1,6 @@
 import os
 import pkg_resources
-import openai
+from openai import OpenAI
 from xblock.core import XBlock
 from xblock.fields import Float, Scope, String, List, Integer
 from xblock.fragment import Fragment
@@ -124,6 +124,18 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
         frag.initialize_js('ChatgptXBlock')
         return frag
 
+    def get_openai_client(self):
+        """
+        Initialize and return an OpenAI client using the API key stored in the XBlock settings.
+        """
+        api_key = self.api_key
+        try:
+            client = OpenAI(api_key=api_key)
+            return client
+        except Exception:
+            # Handle the exception as appropriate for your application
+            return {'error': 'Failed to initialize OpenAI client'}
+
     @XBlock.json_handler
     def get_answer(self, data, suffix=''):
         """
@@ -135,16 +147,19 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
             return {"answer": "Please enter a question."}
 
         # Set the OpenAI API key (4 & 8: we handle errors in a try block)
-        openai.api_key = self.api_key
+        client = self.get_openai_client()
+        if client is None:
+            return {'error': 'Unable to initialize OpenAI client. Please check configuration.'}
+
 
         # 3. Guardrails: Check user prompt with OpenAI Moderation
         try:
-            mod_resp = openai.Moderation.create(input=question)
-            if mod_resp["results"][0]["flagged"]:
+            mod_resp = client.moderations.create(input=question)
+            if mod_resp.results[0].flagged:
                 return {
                     "answer": "Your question may contain disallowed content. Please revise your question."
                 }
-        except openai.error.OpenAIError as e:
+        except Exception as e:
             return {"answer": f"Moderation error: {str(e)}"}
 
         # 2. Provide a conversation-like experience:
@@ -162,20 +177,20 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
 
         # Call ChatGPT with some max_tokens to control length (4)
         try:
-            response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model=self.model_name,
                 messages=messages,
-                max_tokens=150,   # limit the size of the response
-                temperature=0.7   # slightly creative, but not too random
+                max_tokens=self.max_tokens,   # limit the size of the response
+                temperature=self.temperature   # slightly creative, but not too random
             )
-        except openai.error.OpenAIError as e:
+        except Exception as e:
             # 8. Fallback or error handling
             return {"answer": f"OpenAI API error: {str(e)}"}
 
         if not response.choices:
             return {"answer": "No response received from the model."}
 
-        content = response.choices[0].message.get('content', '').strip()
+        content = response.choices[0].message.content.strip()
         if not content:
             content = "Sorry, I couldn't generate a response. Please try again."
 
