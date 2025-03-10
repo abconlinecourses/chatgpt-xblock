@@ -21,14 +21,18 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
     )
     model_name = String(
         display_name="Model name",
-        default="gpt-3.5-turbo-0613",
+        default="gpt-3.5-turbo",
         scope=Scope.settings,
         help="Select a ChatGPT model.",
         values=[
-            {"display_name": "GPT-3.5 Turbo 0613", "value": "gpt-3.5-turbo-0613"},
             {"display_name": "GPT-3.5 Turbo",      "value": "gpt-3.5-turbo"},
-            {"display_name": "GPT-3.5 Turbo 16k",  "value": "gpt-3.5-turbo-16k"},
             {"display_name": "GPT-4",              "value": "gpt-4"},
+            {"display_name": "O3 mini",              "value": "o3-mini"},
+            {"display_name": "O1 mini",              "value": "o1-mini"},
+            {"display_name": "GPT 4O",              "value": "gpt-4o"},
+            {"display_name": "GPT 4 Turbo",              "value": "gpt-4-turbo"},
+            {"display_name": "GPT 4O Mini",              "value": "gpt-4o-mini"},
+            {"display_name": "chatgpt 4O Latest",              "value": "gpt-4o-mini"},
         ],
     )
     api_key = String(
@@ -49,11 +53,10 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
         help="The maximum number of tokens to generate.",
     )
 
-    start_text = String(
-        display_name="Start Text",
-        default="",
+    context_text = String(
+        default="You are a helpful teaching assistant. Provide concise, factual answers.",
         scope=Scope.settings,
-        help="Text to append after the user's input."
+        help="System prompt to guide the AI's behavior."
     )
 
     temperature = Float(
@@ -61,25 +64,6 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
         scope=Scope.settings,
         help="Controls Randomness."
     )
-
-    # TO-DO: Add any additional fields.
-
-    editable_fields = [
-        'display_name',
-        'model_name',
-        'api_key',
-        'description',
-        'context_text',
-        'max_tokens',
-        'start_text',
-        'temperature',
-    ]
-    context_text = String(
-        default="You are a helpful teaching assistant. Provide concise, factual answers.",
-        scope=Scope.settings,
-        help="System prompt to guide the AI's behavior."
-    )
-
     # Student-specific fields
     # This will store the conversation as a list of message dictionaries:
     # e.g. [{"role": "user", "content": "My question?"}, {"role": "assistant", "content": "..."}]
@@ -90,7 +74,15 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
     )
 
     # Make sure the fields that need to be edited in Studio are here
-    editable_fields = ['display_name', 'model_name', 'api_key', 'description', 'context_text']
+    editable_fields = [
+        'display_name', 
+        'model_name',
+        'api_key',
+        'description',
+        'context_text',
+        'max_tokens',
+        'temperature'
+    ]
 
     def resource_string(self, path):
         """Helper for loading resources from the static folder."""
