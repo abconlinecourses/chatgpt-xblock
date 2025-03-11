@@ -1,6 +1,6 @@
 import os
 import pkg_resources
-from openai import OpenAI
+from openai import OpenAI, AuthenticationError
 from xblock.core import XBlock
 from xblock.fields import Float, Scope, String, List, Integer
 from xblock.fragment import Fragment
@@ -159,6 +159,8 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
                 return {
                     "answer": "Your question may contain disallowed content. Please revise your question."
                 }
+        except AuthenticationError as e:
+            return {"answer": "Authentication error. Please check your API key in studio setting."}
         except Exception as e:
             return {"answer": f"Moderation error: {str(e)}"}
 
@@ -183,6 +185,8 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
                 max_tokens=self.max_tokens,   # limit the size of the response
                 temperature=self.temperature   # slightly creative, but not too random
             )
+        except AuthenticationError as e:
+            return {"answer": "Authentication error. Please check your API key in studio setting."}
         except Exception as e:
             # 8. Fallback or error handling
             return {"answer": f"OpenAI API error: {str(e)}"}
