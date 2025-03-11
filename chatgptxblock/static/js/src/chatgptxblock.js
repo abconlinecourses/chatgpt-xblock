@@ -1,14 +1,14 @@
 /* Javascript for ChatgptXBlock. */
 function ChatgptXBlock(runtime, element) {
   // Get elements
-  var questionInput = element.querySelector('#question-input');
-  var submitBtn = element.querySelector('#submit-btn');
-  var answerText = element.querySelector('#answer-text');
-  var errorMessage = element.querySelector('#error-message');
+  var questionInput = $('#question-input', element);
+  var submitBtn = $('#submit-btn', element);
+  var answerText = $('#answer-text', element);
+  var errorMessage = $('#error-message',element);
 
   // Reflection elements
-  var reflectionInput = element.querySelector('#reflection-input');
-  var reflectionBtn = element.querySelector('#reflection-submit-btn');
+  var reflectionInput = $('#reflection-input', element);
+  var reflectionBtn =$('#reflection-submit-btn', element);
 
   // Handler URLs
   var getAnswerUrl = runtime.handlerUrl(element, 'get_answer');
@@ -20,15 +20,15 @@ function ChatgptXBlock(runtime, element) {
   }
 
   // (2) Submit question for conversation
-  submitBtn.addEventListener('click', function() {
-      var question = questionInput.value.trim();
+  submitBtn.click(function (eventObject) {
+      var question = questionInput.val();
       if (!question) {
           showError('Please enter a question.');
           return;
       }
       // Clear any previous error, show a 'loading...' or similar if desired
       showError('');
-      answerText.innerHTML = 'Loading...';
+      answerText.text('Loading...');
 
       $.ajax({
           type: "POST",
@@ -37,7 +37,7 @@ function ChatgptXBlock(runtime, element) {
           success: function(response) {
               // If there's an 'answer' key, show it. Otherwise, show an error.
               if (response.answer) {
-                  answerText.innerHTML = response.answer;
+                  answerText.text(response.answer);
               } else {
                   showError('No answer received.');
               }
@@ -49,8 +49,8 @@ function ChatgptXBlock(runtime, element) {
   });
 
   // (6) Submit reflection
-  reflectionBtn.addEventListener('click', function() {
-      var reflectionText = reflectionInput.value.trim();
+  reflectionBtn.click(function() {
+      var reflectionText = reflectionInput.val();
       if (!reflectionText) {
           showError('Reflection text is empty. Please type something.');
           return;
@@ -66,7 +66,7 @@ function ChatgptXBlock(runtime, element) {
               if (response.status === 'success') {
                   // Simple success feedback. You could do more advanced UI changes.
                   alert(response.message);
-                  reflectionInput.value = '';
+                  reflectionInput.text('');
               } else {
                   showError(response.message);
               }
