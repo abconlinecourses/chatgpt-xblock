@@ -1,8 +1,8 @@
 import os
 import pkg_resources
-import openai
+from openai import OpenAI, AuthenticationError
 from xblock.core import XBlock
-from xblock.fields import Scope, String, List
+from xblock.fields import Float, Scope, String, List, Integer
 from xblock.fragment import Fragment
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 
@@ -21,14 +21,18 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
     )
     model_name = String(
         display_name="Model name",
-        default="gpt-3.5-turbo-0613",
+        default="gpt-3.5-turbo",
         scope=Scope.settings,
         help="Select a ChatGPT model.",
         values=[
-            {"display_name": "GPT-3.5 Turbo 0613", "value": "gpt-3.5-turbo-0613"},
             {"display_name": "GPT-3.5 Turbo",      "value": "gpt-3.5-turbo"},
-            {"display_name": "GPT-3.5 Turbo 16k",  "value": "gpt-3.5-turbo-16k"},
             {"display_name": "GPT-4",              "value": "gpt-4"},
+            {"display_name": "O3 mini",              "value": "o3-mini"},
+            {"display_name": "O1 mini",              "value": "o1-mini"},
+            {"display_name": "GPT 4O",              "value": "gpt-4o"},
+            {"display_name": "GPT 4 Turbo",              "value": "gpt-4-turbo"},
+            {"display_name": "GPT 4O Mini",              "value": "gpt-4o-mini"},
+            {"display_name": "chatgpt 4O Latest",              "value": "gpt-4o-mini"},
         ],
     )
     api_key = String(
@@ -41,12 +45,25 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
         scope=Scope.settings,
         help='Description'
     )
+
+    max_tokens = Integer(
+        display_name="Max tokens",
+        default=150,
+        scope=Scope.settings,
+        help="The maximum number of tokens to generate.",
+    )
+
     context_text = String(
         default="You are a helpful teaching assistant. Provide concise, factual answers.",
         scope=Scope.settings,
         help="System prompt to guide the AI's behavior."
     )
 
+    temperature = Float(
+        default=0.5,
+        scope=Scope.settings,
+        help="Controls Randomness."
+    )
     # Student-specific fields
     # This will store the conversation as a list of message dictionaries:
     # e.g. [{"role": "user", "content": "My question?"}, {"role": "assistant", "content": "..."}]
@@ -57,7 +74,15 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
     )
 
     # Make sure the fields that need to be edited in Studio are here
-    editable_fields = ['display_name', 'model_name', 'api_key', 'description', 'context_text']
+    editable_fields = [
+        'display_name', 
+        'model_name',
+        'api_key',
+        'description',
+        'context_text',
+        'max_tokens',
+        'temperature'
+    ]
 
     def resource_string(self, path):
         """Helper for loading resources from the static folder."""
@@ -99,6 +124,18 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
         frag.initialize_js('ChatgptXBlock')
         return frag
 
+    def get_openai_client(self):
+        """
+        Initialize and return an OpenAI client using the API key stored in the XBlock settings.
+        """
+        api_key = self.api_key
+        try:
+            client = OpenAI(api_key=api_key)
+            return client
+        except Exception:
+            # Handle the exception as appropriate for your application
+            return {'error': 'Failed to initialize OpenAI client'}
+
     @XBlock.json_handler
     def get_answer(self, data, suffix=''):
         """
@@ -110,16 +147,21 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
             return {"answer": "Please enter a question."}
 
         # Set the OpenAI API key (4 & 8: we handle errors in a try block)
-        openai.api_key = self.api_key
+        client = self.get_openai_client()
+        if client is None:
+            return {'error': 'Unable to initialize OpenAI client. Please check configuration.'}
+
 
         # 3. Guardrails: Check user prompt with OpenAI Moderation
         try:
-            mod_resp = openai.Moderation.create(input=question)
-            if mod_resp["results"][0]["flagged"]:
+            mod_resp = client.moderations.create(input=question)
+            if mod_resp.results[0].flagged:
                 return {
                     "answer": "Your question may contain disallowed content. Please revise your question."
                 }
-        except openai.error.OpenAIError as e:
+        except AuthenticationError as e:
+            return {"answer": "Authentication error. Please check your API key in studio setting."}
+        except Exception as e:
             return {"answer": f"Moderation error: {str(e)}"}
 
         # 2. Provide a conversation-like experience:
@@ -137,20 +179,22 @@ class ChatgptXBlock(StudioEditableXBlockMixin, XBlock):
 
         # Call ChatGPT with some max_tokens to control length (4)
         try:
-            response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model=self.model_name,
                 messages=messages,
-                max_tokens=150,   # limit the size of the response
-                temperature=0.7   # slightly creative, but not too random
+                max_tokens=self.max_tokens,   # limit the size of the response
+                temperature=self.temperature   # slightly creative, but not too random
             )
-        except openai.error.OpenAIError as e:
+        except AuthenticationError as e:
+            return {"answer": "Authentication error. Please check your API key in studio setting."}
+        except Exception as e:
             # 8. Fallback or error handling
             return {"answer": f"OpenAI API error: {str(e)}"}
 
         if not response.choices:
             return {"answer": "No response received from the model."}
 
-        content = response.choices[0].message.get('content', '').strip()
+        content = response.choices[0].message.content.strip()
         if not content:
             content = "Sorry, I couldn't generate a response. Please try again."
 
